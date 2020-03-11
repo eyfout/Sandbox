@@ -11,12 +11,15 @@ import java.lang.IndexOutOfBoundsException
 interface StringArray {
     operator fun set(index: Int, value: String)
     operator fun get(index: Int): String
+    fun size() : Int
 }
 
 
 class StringCharArray : StringArray {
     lateinit var values: CharArray
     lateinit var address: IntArray
+    private var size = 0
+
 
     /**
      * Returns the String value at the specified index
@@ -76,17 +79,20 @@ class StringCharArray : StringArray {
     }
 
     private fun addValue(index: Int, value: String) {
+        size++
         address[index * 2] = values.size
         address[index * 2 + 1] = value.length
         values = values.copyOf(values.size + value.length)
         value.toCharArray().copyInto(values, address[index * 2])
     }
+    override fun size() = size
 }
 
 
 class CompressedStringArray : StringArray {
     lateinit var values: CharArray
     lateinit var address: IntArray
+    private var size = 0
 
     private fun index(i: Int) = i shr 16
     private fun length(i: Int) = 0x00FF and i
@@ -142,8 +148,12 @@ class CompressedStringArray : StringArray {
     }
 
     private fun addValue(index: Int, value: String) {
+        size++
         address[index] = addressCalc(values.size, value.length)
         values = values.copyOf(values.size + value.length)
         value.toCharArray().copyInto(values, index(address[index]))
     }
+
+
+    override fun size() = size
 }

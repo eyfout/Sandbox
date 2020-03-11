@@ -5,6 +5,7 @@ import org.junit.Assert
 import org.junit.Test
 
 class TestStringArray {
+    val captureHeapDump = false
 
     private fun implemenations() = listOf(CompressedStringArray(), StringCharArray())
     @Test
@@ -54,6 +55,18 @@ class TestStringArray {
             Assert.assertEquals("#3", store[3])
             Assert.assertEquals("!#2", store[2])
         }
-        HeapDumper.main(arrayOf("string-array.hprof", "true"))
+
+    }
+
+    @Test
+    fun `maximum number of elements in array`() {
+        implemenations().forEach { store ->
+            for (x in 0..0x00FF) {
+                store[x] = x.toString()
+            }
+            Assert.assertTrue(store.size() == 0x00FF)
+            Assert.assertTrue(store[0x00FD] == 0x00FD.toString())
+        }
+        if (captureHeapDump) HeapDumper.main(arrayOf("string-array.hprof", "true"))
     }
 }
