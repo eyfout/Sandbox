@@ -9,9 +9,18 @@ data class PropertyDefinition(val classDefinition: ClassDefinition, val type: HT
 interface HType
 
 @Serializable
-abstract class ConstraintProvider<T>(@Transient val func: (T?, (String) -> Unit) -> Unit) {
+open class ConstraintProvider<T>(@Transient val func: (T?, (String) -> Unit) -> Unit) {
     fun get() = func
+
+    //TODO: Cache previously calculated constraint joins for reuse
+    operator fun plus(other: ConstraintProvider<T>) = ConstraintProvider { a: T?, b: (String) -> Unit ->
+        this.func(a, b)
+        other.func(a, b)
+    }
 }
+
+
+object NOOP : ConstraintProvider<Any?>({ _, _ -> })
 
 @Serializable
 class MinLength(val length: Int) : ConstraintProvider<String?>({ theValue, errMessageAppender ->

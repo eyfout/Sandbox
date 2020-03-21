@@ -44,42 +44,28 @@ class TestConstraint {
 
     @Test
     fun `verify max length`() {
-        val constraints = arrayOf(MinLength(3), MaxLength(6))
-            .map { it.get() }
-        val lambda = composeConstraints(constraints)
+        val constraint = arrayOf(MinLength(3), MaxLength(6)).reduce { a, b -> a + b }
         var actual = ""
-        lambda("Jupiter") { actual = it }
+        constraint.get()("Jupiter") { actual = it }
         Assert.assertEquals("Max", "Max length", actual)
     }
 
     @Test
     fun `verify min length`() {
-        val constraints = arrayOf(MinLength(3), MaxLength(6))
-            .map { it.get() }
+        val constraint = arrayOf(MinLength(3), MaxLength(6)).reduce { a, b -> a + b }
 
-        val lambda = composeConstraints(constraints)
         var actual = ""
-        lambda("it") { actual = it }
+        constraint.get()("it") { actual = it }
         Assert.assertEquals("Min", "Min length", actual)
     }
 
 
     @Test
     fun `verify email address`() {
-        val constraints = arrayOf(MinLength(3), MaxLength(6), EmailAddress)
-            .map { it.get() }
-
+        val constraint = arrayOf(MinLength(3), MaxLength(6), EmailAddress).reduce { a, b -> a + b }
         var actual = ""
-        composeConstraints(constraints)("Junit") { actual = it }
+        constraint.get()("Junit") { actual = it }
         Assert.assertEquals("Email address", "Not an email address", actual)
     }
-
-    private fun <T> composeConstraints(constraints: List<(T?, (String) -> Unit) -> Unit>) =
-        { theValue: T?, collector: (String) -> Unit ->
-            constraints.forEach {
-                it(theValue, collector)
-            }
-        }
-
 }
 
