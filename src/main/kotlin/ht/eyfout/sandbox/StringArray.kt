@@ -1,7 +1,5 @@
 package ht.eyfout.sandbox
 
-import java.lang.IndexOutOfBoundsException
-
 
 /**
  *  A String[] implementation that store an array of Strings as char[].
@@ -11,7 +9,7 @@ import java.lang.IndexOutOfBoundsException
 interface StringArray {
     operator fun set(index: Int, value: String)
     operator fun get(index: Int): String
-    fun size() : Int
+    fun size(): Int
 }
 
 
@@ -85,6 +83,7 @@ class StringCharArray : StringArray {
         values = values.copyOf(values.size + value.length)
         value.toCharArray().copyInto(values, address[index * 2])
     }
+
     override fun size() = size
 }
 

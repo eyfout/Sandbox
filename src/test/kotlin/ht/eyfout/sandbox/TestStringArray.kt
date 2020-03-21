@@ -1,6 +1,6 @@
+package ht.eyfout.sandbox
+
 import ht.eyfout.oracle.HeapDumper
-import ht.eyfout.sandbox.CompressedStringArray
-import ht.eyfout.sandbox.StringCharArray
 import org.junit.Assert
 import org.junit.Test
 
