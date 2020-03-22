@@ -1,5 +1,6 @@
 package ht.eyfout.sandbox
 
+import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 
 
@@ -8,6 +9,7 @@ data class PropertyDefinition(val classDefinition: ClassDefinition, val type: HT
 
 interface HType
 
+@Polymorphic
 @Serializable
 open class ConstraintProvider<T>(@Transient val func: (T?, (String) -> Unit) -> Unit) {
     companion object {
@@ -30,6 +32,7 @@ class MinLength(val length: Int) : ConstraintProvider<String?>({ theValue, errMe
     }
 })
 
+@Serializable
 data class MaxLength(val length: Int) : ConstraintProvider<String?>({ theValue, errMessageAppender ->
     if (theValue?.length ?: 0 > length) {
         errMessageAppender("Max length")
