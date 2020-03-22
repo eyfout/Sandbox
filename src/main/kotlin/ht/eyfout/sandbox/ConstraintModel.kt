@@ -10,6 +10,10 @@ interface HType
 
 @Serializable
 open class ConstraintProvider<T>(@Transient val func: (T?, (String) -> Unit) -> Unit) {
+    companion object {
+        val NOOP = ConstraintProvider<Any?> { _, _ -> }
+    }
+
     fun get() = func
 
     //TODO: Cache previously calculated constraint joins for reuse
@@ -18,9 +22,6 @@ open class ConstraintProvider<T>(@Transient val func: (T?, (String) -> Unit) -> 
         other.func(a, b)
     }
 }
-
-
-object NOOP : ConstraintProvider<Any?>({ _, _ -> })
 
 @Serializable
 class MinLength(val length: Int) : ConstraintProvider<String?>({ theValue, errMessageAppender ->
@@ -42,12 +43,11 @@ object EmailAddress : ConstraintProvider<String?>({ theValue, errMessageAppender
 })
 
 
-//@Serializable
-class Constraint(@Transient val lambda: ClassBuilder.() -> Unit) {
+class ConstraintModel(@Transient val lambda: ConstraintModelBuilder.() -> Unit) {
     val classes: Map<String, Map<String, Array<out ConstraintProvider<*>>>>
 
     init {
-        classes = ClassBuilder().apply(lambda).build()
+        classes = ConstraintModelBuilder().apply(lambda).build()
     }
 
     class ConstraintBuilder {
@@ -59,8 +59,7 @@ class Constraint(@Transient val lambda: ClassBuilder.() -> Unit) {
         fun build() = declaredConstraints
     }
 
-    //    @Serializable
-    class ClassBuilder {
+    class ConstraintModelBuilder {
         private val classes = mutableMapOf<String, Map<String, Array<out ConstraintProvider<*>>>>()
         fun definition(name: String, constraint: ConstraintBuilder.() -> Unit) {
             classes[name] = ConstraintBuilder().apply(constraint).build()
@@ -71,7 +70,7 @@ class Constraint(@Transient val lambda: ClassBuilder.() -> Unit) {
 
 }
 
-fun constraintModel(constraint: Constraint.ClassBuilder.() -> Unit): Constraint {
-    return Constraint(constraint)
+fun constraintModel(constraintModel: ConstraintModel.ConstraintModelBuilder.() -> Unit): ConstraintModel {
+    return ConstraintModel(constraintModel)
 }
 

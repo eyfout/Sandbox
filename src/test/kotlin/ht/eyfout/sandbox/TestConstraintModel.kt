@@ -2,29 +2,33 @@ package ht.eyfout.sandbox
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.stringify
 import org.junit.Assert
 import org.junit.Test
 
-class TestConstraint {
+class TestConstraintModel {
 
     @Test
     fun `serialize constraint provider`() {
-        with(Json(JsonConfiguration.Stable)) {
+        with(Json(JsonConfiguration.Stable, SerializersModule {
+            polymorphic(ConstraintProvider::class) {
+                MinLength::class with MinLength.serializer()
+            }
+        })) {
             println(stringify(MinLength(11)))
         }
     }
 
     @Test
     fun `serialize constraint model`() {
-        with(Json(JsonConfiguration.Stable)) {
-
-            val model = stringify(constraintModel {
-                definition("JohnDoe") {
-                    scalar("pyID", MinLength(3), MaxLength(22))
-                }
-            })
-            println(model)
+        with(constraintModel {
+            definition("Work-") {
+                scalar("pyID", MinLength(3), MaxLength(22), ConstraintProvider.NOOP)
+            }
+        }.classes.get("Work-")!!.get("pyID")!!) {
+            assert(get(0) is MinLength)
+            assert(get(1) is MaxLength)
         }
     }
 
